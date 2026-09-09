@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "assemble and create executable (assembly)",
+            "label": "assemble and create executable",
             "type": "shell",
             "command": "nasm -f elf64 main.asm && ld -m elf_x86_64 -s -o main main.o"
         }
