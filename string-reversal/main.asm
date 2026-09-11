@@ -1,3 +1,5 @@
+BITS 64
+
 segment .data
     prompt db 'Please input a string:', 0x0a
     prLen equ $ - prompt
@@ -66,7 +68,7 @@ _start:
 
 pointers:
     mov rsi, input
-    add rsi, r13           
+    add rsi, r13
     dec rsi                 ; rsi -> last char of source
     mov rdi, revString      ; rdi -> first char of dest
     mov rcx, r13            ; rcx -> counter for loop

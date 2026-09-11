@@ -1,3 +1,4 @@
+BITS 64
 
 segment .data
 PAY_PER_DELIVERY equ 12
@@ -20,7 +21,7 @@ mov esi, 812043		    ; deliveries
 mov edx, 41			    ; hours_on_road
 mov ecx, 17			    ; late_deliveries
 mov r8b, 6			    ; co_drivers
- 
+
 call delivery_payout
 
 mov rdi, rax
@@ -52,9 +53,9 @@ delivery_payout:
 ;				 - fuel_cost - (late_deliveries * LATE_PENALTY)
 
 ; then final_payout is split evenly among (co_drivers + 1) people,
-; and any remainder from that split is added as a tip on top of 
+; and any remainder from that split is added as a tip on top of
 ; the calling driver's share (they get quotient + remainder)
-   
+
     movsxd rsi, esi             ; sign-extend to 64-bit
     imul rsi, PAY_PER_DELIVERY  ; rsi = 9.744.516
 
@@ -62,11 +63,11 @@ delivery_payout:
     imul rdx, HOURLY_BONUS      ; rdx = 13.940
 
     add rsi, rdx                ; rsi = 9.758.456
-    
+
     ;sign-extension to 64-bit before multiplying prevents overflow
 
     sub rsi, rdi                ; rsi = 9.754.256
-     
+
     movsxd rcx, ecx             ; sign-extend to 64-bit
     imul rcx, LATE_PENALTY      ; rcx = 765
 
@@ -82,7 +83,7 @@ delivery_payout:
                                 ; rdx = 6, rax = 1.393.355
     add rax, rdx                ; rax = 1.393.361
     ret
-    
+
 itoa:
     ;converting integer to ascii to print the final payout on screen
 
@@ -112,9 +113,9 @@ itoa:
     inc rdi                     ; move ahead 1 char in dest
     dec rcx                     ; decrease counter
     jnz itoa.reversal           ; loop until string is reversed
-    ;fallthrough                
+    ;fallthrough
     mov byte [rdi], 0x0a        ; add newline at the end
     inc rdi                     ; rdi -> 1 char after end
-    mov rax, rdi                
+    mov rax, rdi
     sub rax, ASCII              ; first char - 1 char after end = length
     ret                         ; returns string length

@@ -1,0 +1,9 @@
+[
+  {
+    "label": "nasm: build & run current file",
+    "command": "nasm -f elf64 -o \"$ZED_DIRNAME/$ZED_STEM.o\" \"$ZED_FILE\" && ld -o \"$ZED_DIRNAME/$ZED_STEM\" \"$ZED_DIRNAME/$ZED_STEM.o\" && \"$ZED_DIRNAME/$ZED_STEM\"",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]
