@@ -48,8 +48,8 @@ mov rdi, 0
 syscall
 
 delivery_payout:
-;final_payout = (deliveries * PAY_PER_DELIVERY) + (hours_on_road * HOURLY_BONUS)
-;				- fuel_cost - (late_deliveries * LATE_PENALTY)
+; final_payout = (deliveries * PAY_PER_DELIVERY) + (hours_on_road * HOURLY_BONUS)
+;				 - fuel_cost - (late_deliveries * LATE_PENALTY)
 
 ; then final_payout is split evenly among (co_drivers + 1) people,
 ; and any remainder from that split is added as a tip on top of 
@@ -57,19 +57,22 @@ delivery_payout:
    
     movsxd rsi, esi             ; sign-extend to 64-bit
     imul rsi, PAY_PER_DELIVERY  ; rsi = 9.744.516
+
     movsxd rdx, edx             ; sign-extend to 64-bit
     imul rdx, HOURLY_BONUS      ; rdx = 13.940
+
     add rsi, rdx                ; rsi = 9.758.456
     
     ;sign-extension to 64-bit before multiplying prevents overflow
 
     sub rsi, rdi                ; rsi = 9.754.256
      
-    movsxd rcx, ecx            
+    movsxd rcx, ecx             ; sign-extend to 64-bit
     imul rcx, LATE_PENALTY      ; rcx = 765
+
     sub rsi, rcx                ; rsi = 9.753.491
 
-    movzx rax, r8b              ; zero extend codrivers into rax
+    movzx rax, r8b              ; zero-extend codrivers into rax
     inc rax                     ; codrivers + 1
     mov rcx, rax                ; rcx = 7
 
@@ -82,34 +85,34 @@ delivery_payout:
     
 itoa:
     ;converting integer to ascii to print the final payout on screen
-    mov rbx, 0      ; counter
+
+    mov rbx, 0                  ; counter
 
     .start:
     xor rdx, rdx                ; clear rdx for division
-    mov rax, rdi                ; move input to rax
+    mov rax, rdi                ; mov input to rax
     mov rcx, 10                 ; rcx -> divisor (10)
     div rcx                     ; rdx:rax / rcx (rax = int / 10, rdx = int % 10)
-    mov rdi, rax                ; 
+    mov rdi, rax                ; mov rax (number - last char) to rdi
     add rdx, '0'                ; add ascii 0 (48)
-    mov [revASCII + rbx], dl    ; move ascii char to string
+    mov [revASCII + rbx], dl    ; mov ascii char to string
     inc rbx                     ; increase counter
-    cmp rax, 0                  
+    cmp rax, 0                  ; is quotient 0?
     jne itoa.start
-
+    ;fallthrough
     mov r8, rbx                 ; r8 -> digit count
     dec rbx                     ; rbx -> last char of source
     mov rdi, ASCII              ; rdi -> first char of dest
     mov rcx, r8                 ; rcx -> counter for loop
 
     .reversal:
-    
     mov al, [revASCII + rbx]    ; load last char
     mov [rdi], al               ; copy to first dest char
     dec rbx                     ; move back 1 char in source
     inc rdi                     ; move ahead 1 char in dest
     dec rcx                     ; decrease counter
     jnz itoa.reversal           ; loop until string is reversed
-                    
+    ;fallthrough                
     mov byte [rdi], 0x0a        ; add newline at the end
     inc rdi                     ; rdi -> 1 char after end
     mov rax, rdi                
